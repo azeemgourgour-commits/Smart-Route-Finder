@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f5f7fb">
+  <title>Smart Route Finder — Intelligent Navigation</title>
+  <link rel="preconnect" href="https://unpkg.com">
+  <link rel="preconnect" href="https://tile.openstreetmap.org">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <a class="brand" href="/">
+        <span class="brand-mark">↗</span>
+        <span><strong>RouteWise</strong><small>SMART ROUTE FINDER</small></span>
+      </a>
+      <div class="side-label">WORKSPACE</div>
+      <button class="nav-item active" data-section="planner"><span>⌁</span> Route planner</button>
+      <button class="nav-item" data-section="saved"><span>☆</span> Saved places</button>
+      <button class="nav-item" data-section="history"><span>◷</span> Trip history</button>
+      <div class="sidebar-bottom">
+        <div class="help-card">
+          <span class="help-icon">✦</span>
+          <strong>Plan smarter</strong>
+          <p>Compare routes, estimate fuel and make every trip count.</p>
+        </div>
+        <div class="profile">
+          <div class="avatar">SR</div>
+          <div><strong>Route Explorer</strong><small>Personal workspace</small></div>
+          <span class="profile-dots">•••</span>
+        </div>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div class="mobile-brand"><span class="brand-mark">↗</span><strong>RouteWise</strong></div>
+        <div class="breadcrumbs">Workspace <span>/</span> <strong id="pageTitle">Route planner</strong></div>
+        <div class="top-actions">
+          <span class="status"><i></i> Routing services ready</span>
+          <button id="themeToggle" class="icon-btn" aria-label="Switch theme" title="Toggle dark/light mode">☾</button>
+        </div>
+      </header>
+
+      <section class="page-heading">
+        <div>
+          <div class="eyebrow">INTELLIGENT NAVIGATION</div>
+          <h1 id="headingTitle">Plan your next journey.</h1>
+          <p id="headingSubtitle">Find a better way to get there with smart route comparison.</p>
+        </div>
+        <button class="secondary-btn" id="locateBtn"><span>◎</span> Use my location</button>
+      </section>
+
+      <section id="plannerSection">
+        <div class="workspace-grid">
+          <div class="left-column">
+            <section class="panel route-panel">
+              <div class="panel-heading">
+                <div><span class="step-dot">01</span><h2>Journey details</h2></div>
+                <span class="mini-tag">DRIVING</span>
+              </div>
+              <div class="route-inputs">
+                <div class="input-row">
+                  <span class="location-dot origin-dot"></span>
+                  <div class="field-wrap">
+                    <label for="originInput">FROM</label>
+                    <input id="originInput" autocomplete="off" placeholder="Enter starting location">
+                    <div id="originSuggestions" class="suggestions"></div>
+                  </div>
+                </div>
+                <button id="swapBtn" class="swap-btn" title="Swap locations" aria-label="Swap locations">↕</button>
+                <div class="input-row">
+                  <span class="location-dot destination-dot"></span>
+                  <div class="field-wrap">
+                    <label for="destinationInput">TO</label>
+                    <input id="destinationInput" autocomplete="off" placeholder="Where do you want to go?">
+                    <div id="destinationSuggestions" class="suggestions"></div>
+                  </div>
+                </div>
+              </div>
+              <div class="route-preferences">
+                <label class="select-label" for="prioritySelect">OPTIMIZE FOR</label>
+                <select id="prioritySelect">
+                  <option value="balanced">Balanced journey</option>
+                  <option value="time">Fastest arrival</option>
+                  <option value="distance">Shortest distance</option>
+                  <option value="cost">Lowest estimated fuel cost</option>
+                </select>
+              </div>
+              <button id="findRouteBtn" class="primary-btn"><span>⌁</span> Find best routes <span class="btn-arrow">→</span></button>
+              <p class="privacy-note">⌑ Your saved places stay in this browser.</p>
+            </section>
+
+            <section class="panel results-panel">
+              <div class="panel-heading">
+                <div><span class="step-dot">02</span><h2>Route options</h2></div>
+                <span id="routeCount" class="count-pill">0 routes</span>
+              </div>
+              <div id="routeResults" class="empty-state">
+                <div class="empty-illustration">⌁</div>
+                <strong>Your routes will appear here</strong>
+                <p>Enter your start and destination to compare available routes.</p>
+              </div>
+              <div id="routeNotice" class="route-notice hidden"></div>
+            </section>
+
+            <section class="panel fuel-panel">
+              <div class="panel-heading">
+                <div><span class="step-dot">03</span><h2>Trip cost estimate</h2></div>
+                <span class="mini-tag">ESTIMATE</span>
+              </div>
+              <div class="fuel-grid">
+                <div class="form-field"><label for="mileageInput">VEHICLE MILEAGE</label><div class="unit-input"><input id="mileageInput" type="number" min="1" value="18"><span>km/l</span></div></div>
+                <div class="form-field"><label for="fuelPriceInput">FUEL PRICE</label><div class="unit-input"><span>₹</span><input id="fuelPriceInput" type="number" min="0" value="100"><span>/l</span></div></div>
+              </div>
+              <div class="cost-result"><div><span>Estimated fuel cost</span><small id="fuelCostSub">Select a route to calculate</small></div><strong id="fuelCostValue">₹—</strong></div>
+              <p class="disclaimer">Estimates only. Live traffic, fuel rates and toll charges may differ.</p>
+            </section>
+          </div>
+
+          <div class="right-column">
+            <section class="map-card">
+              <div class="map-topline"><div><span class="map-live-dot"></span><strong>Route overview</strong></div><button id="resetMapBtn" class="map-action">Reset view ↺</button></div>
+              <div id="map"></div>
+              <div class="map-legend"><span><i class="legend-origin"></i> Start</span><span><i class="legend-destination"></i> Destination</span><span><i class="legend-route"></i> Selected route</span></div>
+            </section>
+
+            <section class="panel quick-panel">
+              <div class="panel-heading"><div><span class="step-dot">✦</span><h2>Quick destinations</h2></div><span class="muted-small">Tap to use</span></div>
+              <div class="quick-grid">
+                <button class="quick-place" data-place="Chandigarh Railway Station"><span class="quick-icon train">↗</span><span><strong>Railway station</strong><small>Transit hub</small></span><span class="quick-plus">+</span></button>
+                <button class="quick-place" data-place="Chandigarh International Airport"><span class="quick-icon plane">✈</span><span><strong>Airport</strong><small>Air travel</small></span><span class="quick-plus">+</span></button>
+                <button class="quick-place" data-place="PGIMER Chandigarh"><span class="quick-icon health">✚</span><span><strong>Hospital</strong><small>Healthcare</small></span><span class="quick-plus">+</span></button>
+                <button class="quick-place" data-place="Elante Mall Chandigarh"><span class="quick-icon shop">◇</span><span><strong>Shopping mall</strong><small>Shopping</small></span><span class="quick-plus">+</span></button>
+              </div>
+            </section>
+
+            <section class="panel insight-panel">
+              <div class="insight-icon">✧</div>
+              <div><strong>Smart planning tip</strong><p id="smartTip">Compare both travel time and distance before choosing your route.</p></div>
+            </section>
+          </div>
+        </div>
+      </section>
+
+      <section id="savedSection" class="panel secondary-section hidden">
+        <div class="panel-heading"><div><span class="step-dot">☆</span><h2>Saved places</h2></div><span class="muted-small">Stored on this device</span></div>
+        <p class="section-intro">Save frequently visited places for faster planning.</p>
+        <div class="save-place-form"><input id="savePlaceInput" placeholder="Place name, e.g. Home or College"><button id="savePlaceBtn" class="primary-btn">+ Save place</button></div>
+        <div id="savedPlacesList" class="list-container"></div>
+      </section>
+
+      <section id="historySection" class="panel secondary-section hidden">
+        <div class="panel-heading"><div><span class="step-dot">◷</span><h2>Trip history</h2></div><button id="clearHistoryBtn" class="text-btn">Clear history</button></div>
+        <p class="section-intro">Your recent route searches are saved locally in this browser.</p>
+        <div id="historyList" class="list-container"></div>
+      </section>
+
+      <footer class="footer"><span>© 2026 RouteWise Smart Route Finder</span><span>Maps © OpenStreetMap contributors · Routing by OSRM</span></footer>
+    </main>
+  </div>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>
